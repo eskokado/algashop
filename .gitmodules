@@ -1,0 +1,3 @@
+[submodule "microservices/ordering"]
+	path = microservices/ordering
+	url = git@github.com:eskokado/ordering.git
