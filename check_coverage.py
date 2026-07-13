@@ -1,0 +1,85 @@
+import os
+import xml.etree.ElementTree as ET
+
+def analyze_coverage(xml_path):
+    if not os.path.exists(xml_path):
+        print(f"Error: XML report not found at {xml_path}")
+        return False
+
+    try:
+        tree = ET.parse(xml_path)
+        root = tree.getroot()
+    except Exception as e:
+        print(f"Error parsing XML: {e}")
+        return False
+
+    print("=" * 60)
+    print("JACOCO CODE COVERAGE REPORT SUMMARY")
+    print("=" * 60)
+
+    # Print overall coverage counters
+    overall_counters = root.findall("./counter")
+    for counter in overall_counters:
+        c_type = counter.get("type")
+        missed = int(counter.get("missed", 0))
+        covered = int(counter.get("covered", 0))
+        total = missed + covered
+        percentage = (covered / total * 100) if total > 0 else 100.0
+        print(f"{c_type:15} | Covered: {covered:5} | Missed: {missed:5} | Total: {total:5} | Coverage: {percentage:6.2f}%")
+    
+    print("-" * 60)
+    print("CLASSES NOT AT 100% COVERAGE:")
+    print("-" * 60)
+
+    not_fully_covered_count = 0
+    all_classes_count = 0
+
+    for pkg in root.findall(".//package"):
+        pkg_name = pkg.get("name").replace("/", ".")
+        for cls in pkg.findall("./class"):
+            cls_name = cls.get("name").split("/")[-1]
+            all_classes_count += 1
+            
+            # Check instructions/line coverage for class
+            line_counter = cls.find("./counter[@type='LINE']")
+            instruction_counter = cls.find("./counter[@type='INSTRUCTION']")
+            branch_counter = cls.find("./counter[@type='BRANCH']")
+            
+            missed_lines = 0
+            covered_lines = 0
+            missed_branches = 0
+            covered_branches = 0
+            
+            if line_counter is not None:
+                missed_lines = int(line_counter.get("missed", 0))
+                covered_lines = int(line_counter.get("covered", 0))
+            if branch_counter is not None:
+                missed_branches = int(branch_counter.get("missed", 0))
+                covered_branches = int(branch_counter.get("covered", 0))
+            
+            total_lines = missed_lines + covered_lines
+            line_pct = (covered_lines / total_lines * 100) if total_lines > 0 else 100.0
+            
+            total_branches = missed_branches + covered_branches
+            branch_pct = (covered_branches / total_branches * 100) if total_branches > 0 else 100.0
+
+            if line_pct < 100.0 or branch_pct < 100.0:
+                not_fully_covered_count += 1
+                pkg_cls = f"{pkg_name}.{cls_name}"
+                print(f"{pkg_cls:<60}")
+                if total_lines > 0 and line_pct < 100.0:
+                    print(f"  - Lines:      {covered_lines}/{total_lines} covered ({line_pct:.2f}%) - {missed_lines} missed")
+                if total_branches > 0 and branch_pct < 100.0:
+                    print(f"  - Branches:   {covered_branches}/{total_branches} covered ({branch_pct:.2f}%) - {missed_branches} missed")
+
+    print("=" * 60)
+    if not_fully_covered_count == 0:
+        print(f"SUCCESS: All {all_classes_count} classes have 100% code coverage!")
+        return True
+    else:
+        print(f"WARNING: {not_fully_covered_count}/{all_classes_count} classes do not have 100% coverage.")
+        return False
+
+if __name__ == "__main__":
+    xml_report = "microservices/ordering/build/reports/jacoco/test/jacocoTestReport.xml"
+    analyze_coverage(xml_report)
