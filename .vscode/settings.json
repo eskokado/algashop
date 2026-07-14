@@ -1,5 +1,6 @@
 {
   "java.configuration.updateBuildConfiguration": "automatic",
   "java.compile.nullAnalysis.mode": "automatic",
-  "chat.byokUtilityModelDefault": "copilot"
+  "chat.byokUtilityModelDefault": "mainAgent",
+  "password-store": "basic"
 }
