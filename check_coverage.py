@@ -1,5 +1,27 @@
 import os
 import xml.etree.ElementTree as ET
+import subprocess
+import sys
+
+def run_gradle_tasks():
+    """Run Gradle tasks to generate Jacoco coverage report (including integration tests)."""
+    os.chdir("microservices/ordering")
+    try:
+        result = subprocess.run(
+            ["./gradlew", "clean", "test", "integrationTest", "jacocoTestReport"],
+            check=True,
+            capture_output=True,
+            text=True
+        )
+        print("Gradle tasks completed successfully!")
+        return True
+    except subprocess.CalledProcessError as e:
+        print("Error running Gradle tasks:")
+        print(e.stdout)
+        print(e.stderr)
+        return False
+    finally:
+        os.chdir("../..")
 
 def analyze_coverage(xml_path):
     if not os.path.exists(xml_path):
@@ -14,7 +36,7 @@ def analyze_coverage(xml_path):
         return False
 
     print("=" * 60)
-    print("JACOCO CODE COVERAGE REPORT SUMMARY")
+    print("JACOCO CODE COVERAGE REPORT SUMMARY (INCLUDING INTEGRATION TESTS)")
     print("=" * 60)
 
     # Print overall coverage counters
@@ -42,7 +64,6 @@ def analyze_coverage(xml_path):
             
             # Check instructions/line coverage for class
             line_counter = cls.find("./counter[@type='LINE']")
-            instruction_counter = cls.find("./counter[@type='INSTRUCTION']")
             branch_counter = cls.find("./counter[@type='BRANCH']")
             
             missed_lines = 0
@@ -81,5 +102,10 @@ def analyze_coverage(xml_path):
         return False
 
 if __name__ == "__main__":
+    success = run_gradle_tasks()
+    if not success:
+        sys.exit(1)
+    
     xml_report = "microservices/ordering/build/reports/jacoco/test/jacocoTestReport.xml"
-    analyze_coverage(xml_report)
+    result = analyze_coverage(xml_report)
+    sys.exit(0 if result else 1)
