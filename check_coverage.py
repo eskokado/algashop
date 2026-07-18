@@ -3,8 +3,50 @@ import xml.etree.ElementTree as ET
 import subprocess
 import sys
 
+import os
+import xml.etree.ElementTree as ET
+import subprocess
+import sys
+import time
+import urllib.error
+import urllib.request
+
+def ensure_rapidex_wiremock():
+    """Start WireMock (Rapidex API stub) via docker compose if not already reachable."""
+    health_url = "http://localhost:8780/__admin/mappings"
+    for _ in range(3):
+        try:
+            with urllib.request.urlopen(health_url, timeout=2) as response:
+                if response.status == 200:
+                    return True
+        except (urllib.error.URLError, TimeoutError):
+            pass
+
+    try:
+        subprocess.run(
+            ["docker", "compose", "up", "-d", "rapidexapi"],
+            check=True,
+            capture_output=True,
+            text=True
+        )
+    except (subprocess.CalledProcessError, FileNotFoundError) as error:
+        print(f"Warning: could not start WireMock via docker compose: {error}")
+        return False
+
+    for _ in range(30):
+        try:
+            with urllib.request.urlopen(health_url, timeout=2) as response:
+                if response.status == 200:
+                    return True
+        except (urllib.error.URLError, TimeoutError):
+            time.sleep(1)
+
+    print("Warning: WireMock did not become ready on http://localhost:8780")
+    return False
+
 def run_gradle_tasks():
     """Run Gradle tasks to generate Jacoco coverage report (including integration tests)."""
+    ensure_rapidex_wiremock()
     os.chdir("microservices/ordering")
     try:
         result = subprocess.run(
