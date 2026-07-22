@@ -19,7 +19,7 @@ def ensure_rapidex_wiremock():
             with urllib.request.urlopen(health_url, timeout=2) as response:
                 if response.status == 200:
                     return True
-        except (urllib.error.URLError, TimeoutError):
+        except (urllib.error.URLError, TimeoutError, ConnectionResetError):
             pass
 
     try:
@@ -38,7 +38,7 @@ def ensure_rapidex_wiremock():
             with urllib.request.urlopen(health_url, timeout=2) as response:
                 if response.status == 200:
                     return True
-        except (urllib.error.URLError, TimeoutError):
+        except (urllib.error.URLError, TimeoutError, ConnectionResetError):
             time.sleep(1)
 
     print("Warning: WireMock did not become ready on http://localhost:8780")
