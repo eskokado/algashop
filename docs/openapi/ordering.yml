@@ -185,6 +185,95 @@ paths:
           $ref: "#/components/responses/UnprocessableEntity"
         500:
           $ref: "#/components/responses/InternalError"
+    get: 
+      description: List orders
+      tags:
+        - Orders
+      parameters:
+        - schema:
+            $ref: "#/components/schemas/OrderStatus"
+          in: query
+          name: status
+          required: false
+        - schema:
+            type: string
+            format: date
+            example: "2024-04-25"
+          in: query
+          name: placedAtFrom
+          required: false
+        - schema:
+            type: string
+            format: date
+            example: "2024-04-01"
+          in: query
+          name: placedAtTo
+          required: false
+        - schema:
+            type: number
+            example: 1211.98
+          in: query
+          name: totalAmountFrom
+          required: false
+        - schema:
+            type: number
+            example: 2341.98
+          in: query
+          name: totalAmountTo
+          required: false
+        - schema:
+            type: string
+            example: "01226N0640J7Q"
+          in: query
+          name: orderId
+          required: false
+        - schema:
+            type: string
+            example: "380d7e70-7942-4b8d-a0e9-b93d79aa6745"
+          in: query
+          name: customerId
+          required: false
+        - $ref: "#/components/parameters/page"
+        - $ref: "#/components/parameters/size"
+        - $ref: "#/components/parameters/sort"
+        - $ref: "#/components/parameters/direction"
+      responses:
+        200:
+          description: Ok
+          content:
+            application/json:
+              schema:
+                allOf:
+                - $ref: "#/components/schemas/Page"
+                - type: object
+                properties:
+                  content:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/OrderSummary"
+  /api/v1/orders/{orderId}: 
+      get:
+        tags:
+          - Orders
+        description: Order detail
+        parameters: 
+          - schema:
+              type: string
+            required: true
+            name: orderId
+            in: path
+            example: "01226N0693HDG"
+        responses: 
+          200: 
+            description: OK
+            content: 
+              application/json:
+                schema: 
+                  $ref: "#/components/schemas/Order"
+          404:
+            $ref: "#/components/responses/NotFound"
+
+
 
 components:
   parameters:
@@ -766,3 +855,47 @@ components:
       enum:
         - GATEWAY_BALANCE
         - CREDIT_CARD
+    OrderSummary:
+      required:
+        - id
+        - customer
+        - paymentMethod
+        - totalItems
+        - totalAmount
+        - placedAt
+        - canceledAt
+        - paidAt
+        - readyAt
+        - status
+      properties:
+        id:
+          type: string
+          example: "01226N0640J7Q"
+        customer:
+          $ref: "#/components/schemas/CustomerMinimal"
+        totalItems:
+          type: integer
+          example: 2
+        totalAmount:
+          type: number
+          example: 41.98
+        placedAt:
+          type: string
+          format: date-time
+          example: "2024-04-04T00:12:45Z"
+        canceledAt:
+          type: string
+          format: date-time
+          example: "2024-04-04T00:12:45Z"
+        paidAt:
+          type: string
+          format: date-time
+          example: "2024-04-04T00:12:45Z"
+        readyAt:
+          type: string
+          format: date-time
+          example: "2024-04-04T00:12:45Z"
+        status:
+          $ref: "#/components/schemas/OrderStatus"
+        paymentMethod:
+          $ref: "#/components/schemas/PaymentMethod"
