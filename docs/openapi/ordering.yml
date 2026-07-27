@@ -36,13 +36,13 @@ paths:
               description: Resource address
               example: "/api/v1/customers/6e148bd5-47f6-4022-b9da-07cfaa294f7a"
         400:
-          description: Bad request
+          $ref: "#/components/responses/BadRequest"
         409: 
-          description: Conflict
+          $ref: "#/components/responses/Conflict"
         422:
-          description: Unprocessable Entity
+          $ref: "#/components/responses/UnprocessableEntity"
         500:
-          description: Internal Server Error
+          $ref: "#/components/responses/InternalError"
     get: 
       description: List customers
       tags:
@@ -76,7 +76,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/Customer"
         404:
-          description: Not found
+          $ref: "#/components/responses/NotFound"
     put: 
       parameters:
         - schema:
@@ -102,15 +102,15 @@ paths:
               schema:
                 $ref: "#/components/schemas/Customer"
         400:
-          description: Bad request
+          $ref: "#/components/responses/BadRequest"
         404:
-          description: Not found
-        409:
-          description: Conflict
+          $ref: "#/components/responses/NotFound"
+        409: 
+          $ref: "#/components/responses/Conflict"
         422:
-          description: Unprocessable Entity
+          $ref: "#/components/responses/UnprocessableEntity"
         500:
-          description: Internal Server Error
+          $ref: "#/components/responses/InternalError"
     delete: 
       parameters:
         - schema:
@@ -126,9 +126,40 @@ paths:
         204:
           description: No content
         404:
-          description: Not found
+          $ref: "#/components/responses/NotFound"
 
 components:
+  responses:
+    NotFound:
+      description: Resource not found
+      content:
+        application/problem+json:
+          schema:
+            $ref: "#/components/schemas/ProblemDetail"
+    BadRequest:
+      description: Invalid request
+      content:
+        application/problem+json:
+          schema:
+            $ref: "#/components/schemas/ProblemDetail"
+    Conflict:
+      description: Conflict resource
+      content:
+        application/problem+json:
+          schema:
+            $ref: "#/components/schemas/ProblemDetail"
+    UnprocessableEntity:
+      description: Unprocessable entity
+      content:
+        application/problem+json:
+          schema:
+            $ref: "#/components/schemas/ProblemDetail"
+    InternalError:
+      description: Internal Server Error
+      content:
+        application/problem+json:
+          schema:
+            $ref: "#/components/schemas/ProblemDetail"
   schemas:
     Customer:
       type: object
@@ -312,3 +343,27 @@ components:
           nullable: false
         address:
           $ref: "#/components/schemas/Address"
+    ProblemDetail:
+      type: object
+      required:
+        - status
+        - type
+      properties:
+        status:
+          type: integer
+          example: 400
+        type:
+          type: string
+          example: "/errors/invalid-data"
+        title:
+          type: string
+          example: Invalid fields
+        instance:
+          type: string
+          example: /"api/v1/customers"
+        detail:
+          type: string
+          example: One or more fields are invalid
+        fields:
+          type: object
+          description: Fields that caused the error
