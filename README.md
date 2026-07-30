@@ -53,9 +53,11 @@ python check_coverage.py
 # serviço específico
 python check_coverage.py billing
 python check_coverage.py ordering
+python check_coverage.py product-catalog
 ```
 
 Para o `ordering`, o script sobe o WireMock automaticamente quando necessário.
+Para o `product-catalog`, a cobertura inclui `test` e `contractTest` (Spring Cloud Contract).
 
 ## Estrutura do repositório
 
@@ -66,7 +68,8 @@ algashop/
 ├── etc/wiremock/              # mappings do stub
 └── microservices/
     ├── billing/               # submodule
-    └── ordering/              # submodule
+    ├── ordering/              # submodule
+    └── product-catalog/       # submodule
 ```
 
 ## Desenvolvimento

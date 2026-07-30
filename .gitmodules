@@ -4,3 +4,6 @@
 [submodule "microservices/billing"]
 	path = microservices/billing
 	url = git@github.com:eskokado/billing.git
+[submodule "microservices/product-catalog"]
+	path = microservices/product-catalog
+	url = git@github.com:eskokado/product-catalog.git

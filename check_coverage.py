@@ -10,11 +10,19 @@ SERVICES = {
     "ordering": {
         "path": "microservices/ordering",
         "xml_report": "microservices/ordering/build/reports/jacoco/test/jacocoTestReport.xml",
+        "gradle_tasks": ["clean", "test", "integrationTest", "jacocoTestReport"],
         "requires_wiremock": True,
     },
     "billing": {
         "path": "microservices/billing",
         "xml_report": "microservices/billing/build/reports/jacoco/test/jacocoTestReport.xml",
+        "gradle_tasks": ["clean", "test", "integrationTest", "jacocoTestReport"],
+        "requires_wiremock": False,
+    },
+    "product-catalog": {
+        "path": "microservices/product-catalog",
+        "xml_report": "microservices/product-catalog/build/reports/jacoco/test/jacocoTestReport.xml",
+        "gradle_tasks": ["clean", "test", "contractTest", "jacocoTestReport"],
         "requires_wiremock": False,
     },
 }
@@ -89,7 +97,7 @@ def run_gradle_tasks(service_name):
             text=True,
         )
         subprocess.run(
-            ["./gradlew", "--no-daemon", "clean", "test", "integrationTest", "jacocoTestReport"],
+            ["./gradlew", "--no-daemon", *service["gradle_tasks"]],
             check=True,
             capture_output=True,
             text=True,
