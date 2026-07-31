@@ -1,6 +1,9 @@
 {
   "java.configuration.updateBuildConfiguration": "automatic",
   "java.compile.nullAnalysis.mode": "automatic",
+  "java.gradle.buildServer.enabled": "off",
+  "java.import.gradle.enabled": true,
+  "java.import.gradle.wrapper.enabled": true,
   "chat.byokUtilityModelDefault": "mainAgent",
   "password-store": "basic"
 }
