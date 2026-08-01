@@ -10,7 +10,7 @@ SERVICES = {
     "ordering": {
         "path": "microservices/ordering",
         "xml_report": "microservices/ordering/build/reports/jacoco/test/jacocoTestReport.xml",
-        "gradle_tasks": ["clean", "test", "integrationTest", "jacocoTestReport"],
+        "gradle_tasks": ["clean", "test", "integrationTest", "contractTest", "jacocoTestReport"],
         "requires_wiremock": True,
     },
     "billing": {
