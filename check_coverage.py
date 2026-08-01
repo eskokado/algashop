@@ -147,6 +147,11 @@ def run_gradle_tasks(service_name, test_types):
         ensure_rapidex_wiremock()
 
     gradle_tasks = ["clean", *test_tasks, "jacocoTestReport"]
+    # jacocoTestReport depends on all test tasks, so explicitly exclude the
+    # unselected ones to keep Gradle from running them anyway.
+    for excluded in service["test_tasks"]:
+        if excluded not in test_tasks:
+            gradle_tasks += ["-x", excluded]
     print(f"\nRunning {', '.join(test_tasks)} and coverage for {service_name}...")
     os.chdir(service["path"])
     try:
