@@ -1,3 +1,4 @@
+import argparse
 import os
 import subprocess
 import sys
@@ -6,23 +7,25 @@ import urllib.error
 import urllib.request
 import xml.etree.ElementTree as ET
 
+TEST_TYPES = ["test", "integrationTest", "contractTest"]
+
 SERVICES = {
     "ordering": {
         "path": "microservices/ordering",
         "xml_report": "microservices/ordering/build/reports/jacoco/test/jacocoTestReport.xml",
-        "gradle_tasks": ["clean", "test", "integrationTest", "contractTest", "jacocoTestReport"],
+        "test_tasks": ["test", "integrationTest", "contractTest"],
         "requires_wiremock": True,
     },
     "billing": {
         "path": "microservices/billing",
         "xml_report": "microservices/billing/build/reports/jacoco/test/jacocoTestReport.xml",
-        "gradle_tasks": ["clean", "test", "integrationTest", "jacocoTestReport"],
+        "test_tasks": ["test", "integrationTest"],
         "requires_wiremock": False,
     },
     "product-catalog": {
         "path": "microservices/product-catalog",
         "xml_report": "microservices/product-catalog/build/reports/jacoco/test/jacocoTestReport.xml",
-        "gradle_tasks": ["clean", "test", "contractTest", "jacocoTestReport"],
+        "test_tasks": ["test", "contractTest"],
         "requires_wiremock": False,
     },
 }
@@ -62,6 +65,30 @@ def ensure_rapidex_wiremock():
     return False
 
 
+def parse_args(argv):
+    parser = argparse.ArgumentParser(
+        description="Run tests and check Jacoco coverage for the microservices."
+    )
+    parser.add_argument(
+        "services",
+        nargs="*",
+        metavar="service",
+        help=f"Services to check (default: all). Available: {', '.join(SERVICES.keys())}",
+    )
+    parser.add_argument(
+        "-t",
+        "--tests",
+        default="all",
+        metavar="TYPES",
+        help=(
+            "Comma-separated test types to run: "
+            f"{', '.join(TEST_TYPES)} or 'all' (default: all). "
+            "Example: --tests test,contractTest"
+        ),
+    )
+    return parser.parse_args(argv)
+
+
 def resolve_services(args):
     if not args:
         return list(SERVICES.keys())
@@ -79,15 +106,48 @@ def resolve_services(args):
     return selected
 
 
-def run_gradle_tasks(service_name):
+def resolve_test_types(tests_arg):
+    if tests_arg.strip().lower() == "all":
+        return list(TEST_TYPES)
+
+    selected = []
+    for raw in tests_arg.split(","):
+        name = raw.strip()
+        if not name:
+            continue
+        matched = next((t for t in TEST_TYPES if t.lower() == name.lower()), None)
+        if matched is None:
+            available = ", ".join(TEST_TYPES)
+            print(f"Error: unknown test type '{name}'. Available types: {available}, all")
+            sys.exit(1)
+        if matched not in selected:
+            selected.append(matched)
+
+    if not selected:
+        print("Error: no test type selected.")
+        sys.exit(1)
+
+    return selected
+
+
+def run_gradle_tasks(service_name, test_types):
     """Run Gradle tasks to generate Jacoco coverage report for a microservice."""
     service = SERVICES[service_name]
     repo_root = os.getcwd()
 
-    if service["requires_wiremock"]:
+    test_tasks = [t for t in test_types if t in service["test_tasks"]]
+    if not test_tasks:
+        print(
+            f"\nSkipping {service_name}: it does not support any of the selected "
+            f"test types ({', '.join(test_types)})."
+        )
+        return None
+
+    if service["requires_wiremock"] and "integrationTest" in test_tasks:
         ensure_rapidex_wiremock()
 
-    print(f"\nRunning tests and coverage for {service_name}...")
+    gradle_tasks = ["clean", *test_tasks, "jacocoTestReport"]
+    print(f"\nRunning {', '.join(test_tasks)} and coverage for {service_name}...")
     os.chdir(service["path"])
     try:
         subprocess.run(
@@ -97,7 +157,7 @@ def run_gradle_tasks(service_name):
             text=True,
         )
         subprocess.run(
-            ["./gradlew", "--no-daemon", *service["gradle_tasks"]],
+            ["./gradlew", "--no-daemon", *gradle_tasks],
             check=True,
             capture_output=True,
             text=True,
@@ -203,11 +263,16 @@ def analyze_coverage(service_name, xml_path):
 
 
 if __name__ == "__main__":
-    selected_services = resolve_services(sys.argv[1:])
+    cli_args = parse_args(sys.argv[1:])
+    selected_services = resolve_services(cli_args.services)
+    selected_test_types = resolve_test_types(cli_args.tests)
     all_success = True
 
     for service_name in selected_services:
-        if not run_gradle_tasks(service_name):
+        result = run_gradle_tasks(service_name, selected_test_types)
+        if result is None:
+            continue
+        if not result:
             all_success = False
             continue
 
