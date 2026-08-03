@@ -31,41 +31,37 @@ SERVICES = {
 }
 
 
-def ensure_rapidex_wiremock():
-    """Start WireMock (Rapidex/product stubs) via docker compose if needed."""
+def free_ordering_wiremock_ports():
+    """Stop Docker WireMock so OrderControllerIT can bind 8780/8781 itself."""
     health_url = "http://localhost:8780/__admin/mappings"
-    product_stub_url = "/api/v1/products/fffe6ec2-7103-48b3-8e4f-3b58e43fb75a"
 
-    def mappings_ready():
+    def port_in_use():
         try:
             with urllib.request.urlopen(health_url, timeout=2) as response:
-                if response.status != 200:
-                    return False
-                payload = response.read().decode("utf-8")
-                return product_stub_url in payload
+                return response.status == 200
         except (urllib.error.URLError, TimeoutError, ConnectionResetError):
             return False
 
-    if mappings_ready():
+    if not port_in_use():
         return True
 
     try:
         subprocess.run(
-            ["docker", "compose", "up", "-d", "--force-recreate", "rapidexapi"],
+            ["docker", "compose", "stop", "rapidexapi"],
             check=True,
             capture_output=True,
             text=True,
         )
     except (subprocess.CalledProcessError, FileNotFoundError) as error:
-        print(f"Warning: could not start WireMock via docker compose: {error}")
+        print(f"Warning: could not stop WireMock via docker compose: {error}")
         return False
 
     for _ in range(30):
-        if mappings_ready():
+        if not port_in_use():
             return True
         time.sleep(1)
 
-    print("Warning: WireMock did not become ready with product stubs on http://localhost:8780")
+    print("Warning: WireMock port 8780 is still in use; OrderControllerIT may fail to bind")
     return False
 
 
@@ -148,7 +144,7 @@ def run_gradle_tasks(service_name, test_types):
         return None
 
     if service["requires_wiremock"] and "integrationTest" in test_tasks:
-        ensure_rapidex_wiremock()
+        free_ordering_wiremock_ports()
 
     gradle_tasks = ["clean", *test_tasks, "jacocoTestReport"]
     # jacocoTestReport depends on all test tasks, so explicitly exclude the
