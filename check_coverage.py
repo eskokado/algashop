@@ -32,19 +32,26 @@ SERVICES = {
 
 
 def ensure_rapidex_wiremock():
-    """Start WireMock (Rapidex API stub) via docker compose if not already reachable."""
+    """Start WireMock (Rapidex/product stubs) via docker compose if needed."""
     health_url = "http://localhost:8780/__admin/mappings"
-    for _ in range(3):
+    product_stub_url = "/api/v1/products/fffe6ec2-7103-48b3-8e4f-3b58e43fb75a"
+
+    def mappings_ready():
         try:
             with urllib.request.urlopen(health_url, timeout=2) as response:
-                if response.status == 200:
-                    return True
+                if response.status != 200:
+                    return False
+                payload = response.read().decode("utf-8")
+                return product_stub_url in payload
         except (urllib.error.URLError, TimeoutError, ConnectionResetError):
-            pass
+            return False
+
+    if mappings_ready():
+        return True
 
     try:
         subprocess.run(
-            ["docker", "compose", "up", "-d", "rapidexapi"],
+            ["docker", "compose", "up", "-d", "--force-recreate", "rapidexapi"],
             check=True,
             capture_output=True,
             text=True,
@@ -54,14 +61,11 @@ def ensure_rapidex_wiremock():
         return False
 
     for _ in range(30):
-        try:
-            with urllib.request.urlopen(health_url, timeout=2) as response:
-                if response.status == 200:
-                    return True
-        except (urllib.error.URLError, TimeoutError, ConnectionResetError):
-            time.sleep(1)
+        if mappings_ready():
+            return True
+        time.sleep(1)
 
-    print("Warning: WireMock did not become ready on http://localhost:8780")
+    print("Warning: WireMock did not become ready with product stubs on http://localhost:8780")
     return False
 
 
