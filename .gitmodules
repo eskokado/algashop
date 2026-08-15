@@ -1,9 +1,20 @@
 [submodule "microservices/ordering"]
 	path = microservices/ordering
 	url = git@github.com:eskokado/ordering.git
+	branch = main
 [submodule "microservices/billing"]
 	path = microservices/billing
 	url = git@github.com:eskokado/billing.git
+	branch = main
 [submodule "microservices/product-catalog"]
 	path = microservices/product-catalog
 	url = git@github.com:eskokado/product-catalog.git
+	branch = main
+[submodule "esk_docs"]
+	path = esk_docs
+	url = git@github.com:algaworks/ems-algashop-docs.git
+	branch = main
+[submodule "template"]
+	path = template
+	url = git@github.com:algaworks/ems-algashop-template.git
+	branch = main
