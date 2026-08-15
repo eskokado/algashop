@@ -47,7 +47,7 @@ def free_ordering_wiremock_ports():
 
     try:
         subprocess.run(
-            ["docker", "compose", "stop", "rapidexapi"],
+            ["docker", "compose", "stop", "wiremock"],
             check=True,
             capture_output=True,
             text=True,

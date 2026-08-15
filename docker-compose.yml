@@ -1,5 +1,5 @@
 services:
-  rapidexapi:
+  wiremock:
     image: wiremock/wiremock:3x
     ports:
       - "8787:8080"

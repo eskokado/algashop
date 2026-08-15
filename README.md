@@ -37,7 +37,7 @@ git submodule update --init --recursive
 O serviço `ordering` depende de um stub da API Rapidex (WireMock):
 
 ```bash
-docker compose up -d rapidexapi
+docker compose up -d wiremock
 ```
 
 O mock fica disponível em `http://localhost:8780`.
