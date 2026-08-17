@@ -29,3 +29,17 @@ services:
           memory: 256M
     environment:
       SPRING_PROFILES_ACTIVE: docker
+  algashop-billing-scheduler:
+    image: algashop/billing-scheduler:dev
+    restart: no
+    ports:
+      - 8083:8083
+    depends_on:
+      algashop-postgres:
+        condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
