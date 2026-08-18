@@ -1,5 +1,6 @@
 include:
   - docker-compose.tools.yml
+
 services:
   algashop-ordering:
     image: algashop/ordering:dev
@@ -9,34 +10,54 @@ services:
     depends_on:
       algashop-postgres:
         condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8080/actuator/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 40s
     deploy:
       resources:
         limits:
           memory: 256M
     environment:
       SPRING_PROFILES_ACTIVE: docker
+
   algashop-billing:
     image: algashop/billing:dev
     restart: no
     ports:
       - 8082:8082
     depends_on:
-      algashop-postgres:
+      algashop-ordering:
         condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8082/actuator/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 40s
     deploy:
       resources:
         limits:
           memory: 256M
     environment:
       SPRING_PROFILES_ACTIVE: docker
+
   algashop-billing-scheduler:
     image: algashop/billing-scheduler:dev
     restart: no
     ports:
       - 8083:8083
     depends_on:
-      algashop-postgres:
+      algashop-billing:
         condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8083/actuator/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 40s
     deploy:
       resources:
         limits:
