@@ -52,3 +52,7 @@ replay_pid*
 __pycache__/
 *.pyc
 *.pyo
+.aider*
+
+.agents/skills/*
+.opencode/skills/*
