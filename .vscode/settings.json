@@ -6,5 +6,17 @@
   "java.import.gradle.wrapper.enabled": true,
   "chat.byokUtilityModelDefault": "mainAgent",
   "password-store": "basic",
-  "java.debug.settings.onBuildFailureProceed": true
+  "java.debug.settings.onBuildFailureProceed": true,
+  "files.exclude": {
+    ".agents": true,
+    ".opencode": true
+  },
+  "files.watcherExclude": {
+    ".agents/**": true,
+    ".opencode/**": true
+  },
+  "gradle.import.include": [
+    "microservices/**",
+    "template/**"
+  ]
 }

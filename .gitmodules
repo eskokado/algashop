@@ -22,9 +22,6 @@
 	path = microservices/billing-scheduler
 	url = git@github.com:eskokado/billing-scheduler.git
 	branch = main
-[submodule ".agents/skills"]
-	path = .agents/skills
-	url = git@github.com:EskCti/skills-ddd-clean-cursor.git
 [submodule ".opencode/skills"]
 	path = .opencode/skills
 	url = git@github.com:eskokado/skills-ddd-clean-opencode.git
