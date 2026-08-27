@@ -25,7 +25,7 @@ SERVICES = {
     "product-catalog": {
         "path": "microservices/product-catalog",
         "xml_report": "microservices/product-catalog/build/reports/jacoco/test/jacocoTestReport.xml",
-        "test_tasks": ["test", "contractTest"],
+        "test_tasks": ["test", "contractTest", "integrationTest"],
         "requires_wiremock": False,
     },
 }
