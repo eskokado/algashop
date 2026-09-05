@@ -42,13 +42,11 @@ services:
       DATABASE_USERNAME: postgres
       DATABASE_PASSWORD: postgres
       SPRING_PROFILES_ACTIVE: docker
-  algashop-mongodb:
+  algashop-mongodb-1:
     image: mongo:8
+    command: ["mongod", "--replSet", "rs0", "--bind_ip_all"]
     ports:
       - 27017:27017
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: root
-      MONGO_INITDB_ROOT_PASSWORD: algashop
     restart: no
     deploy:
       resources:
@@ -61,7 +59,74 @@ services:
       retries: 5
       start_period: 40s
     volumes:
-      - algashop-mongodb:/data/db
+      - algashop-mongodb-1:/data/db
+  algashop-mongodb-2:
+    image: mongo:8
+    command: ["mongod", "--replSet", "rs0", "--bind_ip_all"]
+    ports:
+      - 27018:27017
+    restart: no
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 10s
+      retries: 5
+      start_period: 40s
+    volumes:
+      - algashop-mongodb-2:/data/db
+  algashop-mongodb-3:
+    image: mongo:8
+    command: ["mongod", "--replSet", "rs0", "--bind_ip_all"]
+    ports:
+      - 27019:27017
+    restart: no
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 10s
+      retries: 5
+      start_period: 40s
+    volumes:
+      - algashop-mongodb-3:/data/db
+  algashop-mongodb-init:
+    image: mongo:8
+    depends_on:
+      algashop-mongodb-1:
+        condition: service_healthy
+      algashop-mongodb-2:
+        condition: service_healthy
+      algashop-mongodb-3:
+        condition: service_healthy
+    entrypoint: ["bash", "-c"]
+    command: >
+      "
+      echo 'Configuring MongoDB replica set...'
+
+      mongosh --host algashop-mongodb-1 --eval '
+        rs.initiate({
+          _id: \"rs0\",
+          members: [
+            { _id: 0, host: \"algashop-mongodb-1:27017\"},
+            { _id: 1, host: \"algashop-mongodb-2:27017\"},
+            { _id: 2, host: \"algashop-mongodb-3:27017\"}
+          ]
+        })
+      ' || true;
+
+      mongosh --host algashop-mongodb-1 --eval 'printjson(rs.status())'
+      "
+    restart: "no"
+
 volumes:
   algashop-postgres:
-  algashop-mongodb:
+  algashop-mongodb-1:
+  algashop-mongodb-2:
+  algashop-mongodb-3:
