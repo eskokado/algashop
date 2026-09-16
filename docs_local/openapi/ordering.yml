@@ -1,6 +1,6 @@
 openapi: 3.0.4
 
-info: 
+info:
   title: AlgaShop - Ordering
   version: "1.0"
 
@@ -14,7 +14,7 @@ paths:
   /api/v1/customers:
     post:
       description: Register new customer
-      tags: 
+      tags:
         - Customers
       requestBody:
         required: true
@@ -37,13 +37,13 @@ paths:
               example: "/api/v1/customers/6e148bd5-47f6-4022-b9da-07cfaa294f7a"
         400:
           $ref: "#/components/responses/BadRequest"
-        409: 
+        409:
           $ref: "#/components/responses/Conflict"
         422:
           $ref: "#/components/responses/UnprocessableEntity"
         500:
           $ref: "#/components/responses/InternalError"
-    get: 
+    get:
       description: List customers
       tags:
         - Customers
@@ -71,13 +71,13 @@ paths:
             application/json:
               schema:
                 allOf:
-                - $ref: "#/components/schemas/Page"
-                - type: object
+                  - $ref: "#/components/schemas/Page"
+                  - type: object
                 properties:
                   content:
                     type: array
                     items:
-                      $ref: "#/components/schemas/CustomerSummary"
+                      $ref: "#/components/schemas/OrderSummary"
   /api/v1/customers/{customerId}:
     get:
       parameters:
@@ -86,7 +86,7 @@ paths:
           name: customerId
           in: path
           required: true
-          example: '6e148bd5-47f6-4022-b9da-07cfaa294f7a'
+          example: "6e148bd5-47f6-4022-b9da-07cfaa294f7a"
       description: Get one customer by id
       tags:
         - Customers
@@ -99,14 +99,14 @@ paths:
                 $ref: "#/components/schemas/Customer"
         404:
           $ref: "#/components/responses/NotFound"
-    put: 
+    put:
       parameters:
         - schema:
             type: string
           name: customerId
           in: path
           required: true
-          example: '6e148bd5-47f6-4022-b9da-07cfaa294f7a'
+          example: "6e148bd5-47f6-4022-b9da-07cfaa294f7a"
       description: Edit customer
       tags:
         - Customers
@@ -127,20 +127,20 @@ paths:
           $ref: "#/components/responses/BadRequest"
         404:
           $ref: "#/components/responses/NotFound"
-        409: 
+        409:
           $ref: "#/components/responses/Conflict"
         422:
           $ref: "#/components/responses/UnprocessableEntity"
         500:
           $ref: "#/components/responses/InternalError"
-    delete: 
+    delete:
       parameters:
         - schema:
             type: string
           name: customerId
           in: path
           required: true
-          example: '6e148bd5-47f6-4022-b9da-07cfaa294f7a'
+          example: "6e148bd5-47f6-4022-b9da-07cfaa294f7a"
       description: Delete customer
       tags:
         - Customers
@@ -179,13 +179,13 @@ paths:
               example: "/api/v1/orders/01226N0693HDE"
         400:
           $ref: "#/components/responses/BadRequest"
-        409: 
+        409:
           $ref: "#/components/responses/Conflict"
         422:
           $ref: "#/components/responses/UnprocessableEntity"
         500:
           $ref: "#/components/responses/InternalError"
-    get: 
+    get:
       description: List orders
       tags:
         - Orders
@@ -244,47 +244,47 @@ paths:
             application/json:
               schema:
                 allOf:
-                - $ref: "#/components/schemas/Page"
-                - type: object
+                  - $ref: "#/components/schemas/Page"
+                  - type: object
                 properties:
                   content:
                     type: array
                     items:
                       $ref: "#/components/schemas/OrderSummary"
-  /api/v1/orders/{orderId}: 
-      get:
-        tags:
-          - Orders
-        description: Order detail
-        parameters: 
-          - schema:
-              type: string
-            required: true
-            name: orderId
-            in: path
-            example: "01226N0693HDG"
-        responses: 
-          200: 
-            description: OK
-            content: 
-              application/json:
-                schema: 
-                  $ref: "#/components/schemas/Order"
-          404:
-            $ref: "#/components/responses/NotFound"
+  /api/v1/orders/{orderId}:
+    get:
+      tags:
+        - Orders
+      description: Order detail
+      parameters:
+        - schema:
+            type: string
+          required: true
+          name: orderId
+          in: path
+          example: "01226N0693HDG"
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Order"
+        404:
+          $ref: "#/components/responses/NotFound"
 
   /api/v1/shopping-carts:
     post:
       tags:
         - Shopping Cart
       description: Create shopping cart
-      requestBody: 
+      requestBody:
         required: true
         content:
           application/json:
-            schema: 
+            schema:
               $ref: "#/components/schemas/ShoppingCartInput"
-      responses: 
+      responses:
         201:
           description: OK
           content:
@@ -296,62 +296,62 @@ paths:
         500:
           $ref: "#/components/responses/InternalError"
   /api/v1/shopping-carts/{shoppingCartId}:
-    get: 
-      parameters: 
-      - schema:
-          type: string
-        name: shoppingCartId
-        in: path
-        required: true
-        example: "277297bf-e586-4389-9f21-b3ce0c3f6580"
+    get:
+      parameters:
+        - schema:
+            type: string
+          name: shoppingCartId
+          in: path
+          required: true
+          example: "277297bf-e586-4389-9f21-b3ce0c3f6580"
       tags:
         - Shopping Cart
       description: Find shopping cart
-      responses: 
-        200: 
+      responses:
+        200:
           description: OK
-          content: 
+          content:
             application/json:
-              schema: 
+              schema:
                 $ref: "#/components/schemas/ShoppingCart"
         404:
           $ref: "#/components/responses/NotFound"
     delete:
-      parameters: 
-      - schema:
-          type: string
-        name: shoppingCartId
-        in: path
-        required: true
-        example: "277297bf-e586-4389-9f21-b3ce0c3f6580"
+      parameters:
+        - schema:
+            type: string
+          name: shoppingCartId
+          in: path
+          required: true
+          example: "277297bf-e586-4389-9f21-b3ce0c3f6580"
       tags:
         - Shopping Cart
       description: Delete shopping cart
-      responses: 
-        204: 
+      responses:
+        204:
           description: OK
         404:
           $ref: "#/components/responses/NotFound"
   /api/v1/shopping-carts/{shoppingCartId}/items:
     post:
-      parameters: 
-      - schema:
-          type: string
-        name: shoppingCartId
-        in: path
-        required: true
-        example: "277297bf-e586-4389-9f21-b3ce0c3f6580"
+      parameters:
+        - schema:
+            type: string
+          name: shoppingCartId
+          in: path
+          required: true
+          example: "277297bf-e586-4389-9f21-b3ce0c3f6580"
       tags:
         - Shopping Cart
       description: Add or update cart item
-      requestBody: 
+      requestBody:
         required: true
-        content: 
+        content:
           application/json:
-            schema: 
+            schema:
               $ref: "#/components/schemas/ShoppingCartItemInput"
-      responses: 
-        204: 
+      responses:
+        204:
           description: OK
         404:
           $ref: "#/components/responses/NotFound"
@@ -359,39 +359,39 @@ paths:
           $ref: "#/components/responses/BadRequest"
         500:
           $ref: "#/components/responses/InternalError"
-    get: 
-      parameters: 
-      - schema:
-          type: string
-        name: shoppingCartId
-        in: path
-        required: true
-        example: "277297bf-e586-4389-9f21-b3ce0c3f6580"
+    get:
+      parameters:
+        - schema:
+            type: string
+          name: shoppingCartId
+          in: path
+          required: true
+          example: "277297bf-e586-4389-9f21-b3ce0c3f6580"
       tags:
         - Shopping Cart
       description: List shopping cart items
       responses:
         200:
           description: OK
-          content: 
+          content:
             application/json:
-              schema: 
+              schema:
                 $ref: "#/components/schemas/ShoppingCartItemList"
         404:
           $ref: "#/components/responses/NotFound"
     delete:
-      parameters: 
-      - schema:
-          type: string
-        name: shoppingCartId
-        in: path
-        required: true
-        example: "277297bf-e586-4389-9f21-b3ce0c3f6580"
+      parameters:
+        - schema:
+            type: string
+          name: shoppingCartId
+          in: path
+          required: true
+          example: "277297bf-e586-4389-9f21-b3ce0c3f6580"
       tags:
         - Shopping Cart
       description: Empty shopping cart
-      responses: 
-        204: 
+      responses:
+        204:
           description: OK
         404:
           $ref: "#/components/responses/NotFound"
@@ -400,22 +400,49 @@ paths:
       tags:
         - Shopping Cart
       description: Remove cart item
-      parameters: 
-      - schema:
-          type: string
-        name: shoppingCartId
-        in: path
-        required: true
-        example: "277297bf-e586-4389-9f21-b3ce0c3f6580"
-      - schema:
-          type: string
-        name: itemId
-        in: path
-        required: true
-        example: "28fcd9fb-4ce7-44d6-9583-14d8b3dc5aff"
-      responses: 
-        204: 
+      parameters:
+        - schema:
+            type: string
+          name: shoppingCartId
+          in: path
+          required: true
+          example: "277297bf-e586-4389-9f21-b3ce0c3f6580"
+        - schema:
+            type: string
+          name: itemId
+          in: path
+          required: true
+          example: "28fcd9fb-4ce7-44d6-9583-14d8b3dc5aff"
+      responses:
+        204:
           description: OK
+  /api/v1/shipping-cost-previews:
+    post:
+      summary: Preview shipping cost
+      description: Calculates a preview of the shipping cost and expected delivery date based on the destination zip code.
+      tags:
+        - Shipping
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ShippingCostPreviewInput"
+      responses:
+        200:
+          description: Shipping cost preview calculated successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ShippingCostPreviewOutput"
+        400:
+          $ref: "#/components/responses/BadRequest"
+        409:
+          $ref: "#/components/responses/Conflict"
+        422:
+          $ref: "#/components/responses/UnprocessableEntity"
+        500:
+          $ref: "#/components/responses/InternalError"
 
 components:
   parameters:
@@ -496,7 +523,7 @@ components:
         - archived
         - address
       properties:
-        id: 
+        id:
           type: string
           example: "380d7e70-7942-4b8d-a0e9-b93d79aa6745"
         firstName:
@@ -592,7 +619,7 @@ components:
         - phone
         - archived
       properties:
-        id: 
+        id:
           type: string
           example: "380d7e70-7942-4b8d-a0e9-b93d79aa6745"
         firstName:
@@ -947,7 +974,7 @@ components:
           type: string
           example: "johndoe@email.com"
           nullable: false
-        address: 
+        address:
           $ref: "#/components/schemas/Address"
     Shipping:
       type: object
@@ -978,7 +1005,7 @@ components:
         - email
         - phone
       properties:
-        id: 
+        id:
           type: string
           example: "380d7e70-7942-4b8d-a0e9-b93d79aa6745"
         firstName:
@@ -1065,7 +1092,7 @@ components:
       properties:
         id:
           type: string
-          example: '277297bf-e586-4389-9f21-b3ce0c3f6580'
+          example: "277297bf-e586-4389-9f21-b3ce0c3f6580"
         totalAmount:
           type: number
           example: 41.98
@@ -1074,7 +1101,7 @@ components:
           example: 1
         customerId:
           type: string
-          example: '277297bf-e586-4389-9f21-b3ce0c3f6580'
+          example: "277297bf-e586-4389-9f21-b3ce0c3f6580"
         items:
           type: array
           items:
@@ -1091,13 +1118,13 @@ components:
       properties:
         id:
           type: string
-          example: '177297bf-e586-4389-9f21-a3ce0c3f6580'
+          example: "177297bf-e586-4389-9f21-a3ce0c3f6580"
         productId:
           type: string
-          example: '277297bf-e586-4389-9f21-b3ce0c3f6580'
+          example: "277297bf-e586-4389-9f21-b3ce0c3f6580"
         name:
           type: string
-          example: 'Desktop Gamer Dive'
+          example: "Desktop Gamer Dive"
         price:
           type: number
           example: 100.00
@@ -1129,11 +1156,37 @@ components:
           example: 2
         productId:
           type: string
-          example: '6a6ca34c-e65c-496e-adaf-f872e1784003'
+          example: "6a6ca34c-e65c-496e-adaf-f872e1784003"
     ShoppingCartInput:
       required:
         - customerId
       properties:
         customerId:
           type: string
-          example: '6a6ca34c-e65c-496e-adaf-f872e1784003'
+          example: "6a6ca34c-e65c-496e-adaf-f872e1784003"
+    ShippingCostPreviewInput:
+      type: object
+      required:
+        - zipCode
+      properties:
+        zipCode:
+          type: string
+          description: Destination ZIP code
+          example: "12345"
+
+    ShippingCostPreviewOutput:
+      type: object
+      required:
+        - cost
+        - expectedDate
+      properties:
+        cost:
+          type: number
+          format: decimal
+          description: Calculated shipping cost
+          example: 29.90
+        expectedDate:
+          type: string
+          format: date
+          description: Expected delivery date
+          example: "2026-02-01"
