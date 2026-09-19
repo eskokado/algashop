@@ -44,7 +44,7 @@ services:
       SPRING_PROFILES_ACTIVE: docker
   algashop-mongodb-1:
     image: mongo:8
-    command: ["mongod", "--replSet", "rs0", "--bind_ip_all"]
+    command: ["mongod", "--replSet", "rs0", "--bind_ip_all", "--port", "27017"]
     ports:
       - 27017:27017
     restart: no
@@ -53,7 +53,7 @@ services:
         limits:
           memory: 512M
     healthcheck:
-      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      test: ["CMD", "mongosh", "--port", "27017", "--eval", "db.adminCommand('ping')"]
       interval: 10s
       timeout: 10s
       retries: 5
@@ -62,16 +62,16 @@ services:
       - algashop-mongodb-1:/data/db
   algashop-mongodb-2:
     image: mongo:8
-    command: ["mongod", "--replSet", "rs0", "--bind_ip_all"]
+    command: ["mongod", "--replSet", "rs0", "--bind_ip_all", "--port", "27018"]
     ports:
-      - 27018:27017
+      - 27018:27018
     restart: no
     deploy:
       resources:
         limits:
           memory: 512M
     healthcheck:
-      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      test: ["CMD", "mongosh", "--port", "27018", "--eval", "db.adminCommand('ping')"]
       interval: 10s
       timeout: 10s
       retries: 5
@@ -80,16 +80,16 @@ services:
       - algashop-mongodb-2:/data/db
   algashop-mongodb-3:
     image: mongo:8
-    command: ["mongod", "--replSet", "rs0", "--bind_ip_all"]
+    command: ["mongod", "--replSet", "rs0", "--bind_ip_all", "--port", "27019"]
     ports:
-      - 27019:27017
+      - 27019:27019
     restart: no
     deploy:
       resources:
         limits:
           memory: 512M
     healthcheck:
-      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      test: ["CMD", "mongosh", "--port", "27019", "--eval", "db.adminCommand('ping')"]
       interval: 10s
       timeout: 10s
       retries: 5
@@ -110,18 +110,18 @@ services:
       "
       echo 'Configuring MongoDB replica set...'
 
-      mongosh --host algashop-mongodb-1 --eval '
+      mongosh --host algashop-mongodb-1 --port 27017 --eval '
         rs.initiate({
           _id: \"rs0\",
           members: [
             { _id: 0, host: \"algashop-mongodb-1:27017\"},
-            { _id: 1, host: \"algashop-mongodb-2:27017\"},
-            { _id: 2, host: \"algashop-mongodb-3:27017\"}
+            { _id: 1, host: \"algashop-mongodb-2:27018\"},
+            { _id: 2, host: \"algashop-mongodb-3:27019\"}
           ]
         })
       ' || true;
 
-      mongosh --host algashop-mongodb-1 --eval 'printjson(rs.status())'
+      mongosh --host algashop-mongodb-1 --port 27017 --eval 'printjson(rs.status())'
       "
     restart: "no"
   algashop-redis:
