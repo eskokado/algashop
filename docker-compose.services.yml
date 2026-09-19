@@ -10,8 +10,11 @@ services:
     depends_on:
       algashop-postgres:
         condition: service_healthy
+      algashop-redis:
+        condition: service_healthy
     healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:8080/actuator/health || exit 1"]
+      test:
+        ["CMD-SHELL", "curl -f http://localhost:8080/actuator/health || exit 1"]
       interval: 10s
       timeout: 10s
       retries: 10
@@ -22,6 +25,8 @@ services:
           memory: 256M
     environment:
       SPRING_PROFILES_ACTIVE: docker
+      SERVER_TOMCAT_THREADS_MAX: 10 # 200
+      SPRING_THREADS_VIRTUAL_ENABLED: true
 
   algashop-billing:
     image: algashop/billing:dev
@@ -32,7 +37,8 @@ services:
       algashop-ordering:
         condition: service_healthy
     healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:8082/actuator/health || exit 1"]
+      test:
+        ["CMD-SHELL", "curl -f http://localhost:8082/actuator/health || exit 1"]
       interval: 10s
       timeout: 10s
       retries: 10
@@ -53,7 +59,8 @@ services:
       algashop-billing:
         condition: service_healthy
     healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:8083/actuator/health || exit 1"]
+      test:
+        ["CMD-SHELL", "curl -f http://localhost:8083/actuator/health || exit 1"]
       interval: 10s
       timeout: 10s
       retries: 10
@@ -74,7 +81,8 @@ services:
       algashop-mongodb-1:
         condition: service_healthy
     healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:8084/actuator/health || exit 1"]
+      test:
+        ["CMD-SHELL", "curl -f http://localhost:8084/actuator/health || exit 1"]
       interval: 10s
       timeout: 10s
       retries: 10
