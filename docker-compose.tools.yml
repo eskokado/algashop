@@ -191,15 +191,19 @@ services:
     environment:
       SERVICES: s3
       DEBUG: 1
+      LS_ACCESS_KEY_ID: LSIAQAAAAAAVNCBMPNSG
+      LS_SECRET_ACCESS_KEY: test
+      LS_REGION: us-east-1
     volumes:
       - ./etc/aws/init.sh:/etc/localstack/init/ready.d/init-aws.sh
       - ./etc/aws:/etc/aws
+      - ./etc/images:/etc/images
     healthcheck:
       test: curl --location 'http://localhost:4566/_localstack/health'
     deploy:
       resources:
         limits:
-          memory: 512M
+          memory: 1GB
 
 volumes:
   algashop-postgres:
