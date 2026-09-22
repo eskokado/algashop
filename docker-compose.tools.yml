@@ -183,6 +183,20 @@ services:
           memory: 512M
     environment:
       REDIS_PASSWORD: algashop
+  algashop-localstack:
+    image: localstack/localstack:4.13.1
+    ports:
+      - 4566:4566
+      - 4510-4559:4510-4559
+    environment:
+      SERVICES: s3
+      DEBUG: 1
+    healthcheck:
+      test: curl --location 'http://localhost:4566/_localstack/health'
+    deploy:
+      resources:
+        limits:
+          memory: 512M
 
 volumes:
   algashop-postgres:
