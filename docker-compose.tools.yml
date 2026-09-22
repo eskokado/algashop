@@ -187,10 +187,13 @@ services:
     image: localstack/localstack:4.13.1
     ports:
       - 4566:4566
-      - 4510-4559:4510-4559
+      - 4567-4580:4567-4580
     environment:
       SERVICES: s3
       DEBUG: 1
+    volumes:
+      - ./etc/aws/init.sh:/etc/localstack/init/ready.d/init-aws.sh
+      - ./etc/aws:/etc/aws
     healthcheck:
       test: curl --location 'http://localhost:4566/_localstack/health'
     deploy:
