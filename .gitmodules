@@ -25,3 +25,6 @@
 [submodule ".opencode/skills"]
 	path = .opencode/skills
 	url = git@github.com:eskokado/skills-ddd-clean-opencode.git
+[submodule "microservices/authorization-server"]
+	path = microservices/authorization-server
+	url = git@github.com:eskokado/authorization-server.git
