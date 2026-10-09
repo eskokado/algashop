@@ -10,6 +10,12 @@ import xml.etree.ElementTree as ET
 TEST_TYPES = ["test", "integrationTest", "contractTest"]
 
 SERVICES = {
+    "authorization-server": {
+        "path": "microservices/authorization-server",
+        "xml_report": "microservices/authorization-server/build/reports/jacoco/test/jacocoTestReport.xml",
+        "test_tasks": ["test"],
+        "requires_wiremock": False,
+    },
     "ordering": {
         "path": "microservices/ordering",
         "xml_report": "microservices/ordering/build/reports/jacoco/test/jacocoTestReport.xml",
