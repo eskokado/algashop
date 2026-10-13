@@ -6,7 +6,7 @@ info:
 
 servers:
   - description: Development
-    url: "http://algashop-authorization-server:8081"
+    url: "http://auth.algashop.local:8081"
   - description: Production
     url: "https://auth.algashop.com"
 
@@ -302,4 +302,4 @@ components:
           example: true
         type:
           type: string
-          example: 'ADMIN'
+          example: "ADMIN"
