@@ -56,3 +56,6 @@ __pycache__/
 
 .agents/skills/*
 .opencode/skills/*
+
+# Pastas legadas
+*_legado/
