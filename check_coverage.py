@@ -34,6 +34,12 @@ SERVICES = {
         "test_tasks": ["test", "contractTest", "integrationTest"],
         "requires_wiremock": False,
     },
+    "billing-scheduler": {
+        "path": "microservices/billing-scheduler",
+        "xml_report": "microservices/billing-scheduler/build/reports/jacoco/test/jacocoTestReport.xml",
+        "test_tasks": ["test", "integrationTest"],
+        "requires_wiremock": False,
+    },
 }
 
 
