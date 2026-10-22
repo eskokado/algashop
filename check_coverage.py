@@ -9,6 +9,8 @@ import xml.etree.ElementTree as ET
 
 TEST_TYPES = ["test", "integrationTest", "contractTest"]
 
+DEFAULT_MIN_COVERAGE = 0.95
+
 SERVICES = {
     "authorization-server": {
         "path": "microservices/authorization-server",
@@ -96,6 +98,19 @@ def parse_args(argv):
             "Comma-separated test types to run: "
             f"{', '.join(TEST_TYPES)} or 'all' (default: all). "
             "Example: --tests test,contractTest"
+        ),
+    )
+    parser.add_argument(
+        "-m",
+        "--min-coverage",
+        type=float,
+        default=DEFAULT_MIN_COVERAGE,
+        metavar="PCT",
+        help=(
+            "Minimum coverage percentage required per class, for both lines "
+            f"and branches (default: {DEFAULT_MIN_COVERAGE * 100:g}%). "
+            "Classes below the limit fail the check; classes between the "
+            "limit and 100% are reported as warnings."
         ),
     )
     return parser.parse_args(argv)
@@ -190,7 +205,7 @@ def run_gradle_tasks(service_name, test_types):
         os.chdir(repo_root)
 
 
-def analyze_coverage(service_name, xml_path):
+def analyze_coverage(service_name, xml_path, min_coverage=DEFAULT_MIN_COVERAGE):
     if not os.path.exists(xml_path):
         print(f"Error: XML report not found at {xml_path}")
         return False
@@ -202,9 +217,12 @@ def analyze_coverage(service_name, xml_path):
         print(f"Error parsing XML for {service_name}: {error}")
         return False
 
+    min_pct = min_coverage * 100
+
     print("=" * 60)
     print(f"JACOCO CODE COVERAGE REPORT SUMMARY - {service_name.upper()}")
     print("=" * 60)
+    print(f"Required minimum per class (lines and branches): {min_pct:g}%")
 
     overall_counters = root.findall("./counter")
     for counter in overall_counters:
@@ -219,10 +237,11 @@ def analyze_coverage(service_name, xml_path):
         )
 
     print("-" * 60)
-    print("CLASSES NOT AT 100% COVERAGE:")
+    print(f"CLASSES BELOW {min_pct:g}% COVERAGE:")
     print("-" * 60)
 
-    not_fully_covered_count = 0
+    below_threshold_count = 0
+    warning_count = 0
     all_classes_count = 0
 
     for pkg in root.findall(".//package"):
@@ -252,10 +271,27 @@ def analyze_coverage(service_name, xml_path):
             total_branches = missed_branches + covered_branches
             branch_pct = (covered_branches / total_branches * 100) if total_branches > 0 else 100.0
 
-            if line_pct < 100.0 or branch_pct < 100.0:
-                not_fully_covered_count += 1
+            line_below = total_lines > 0 and line_pct < min_pct
+            branch_below = total_branches > 0 and branch_pct < min_pct
+
+            if line_below or branch_below:
+                below_threshold_count += 1
                 pkg_cls = f"{pkg_name}.{cls_name}"
-                print(f"{pkg_cls:<60}")
+                print(f"{pkg_cls:<60} [FAIL]")
+                if line_below:
+                    print(
+                        f"  - Lines:      {covered_lines}/{total_lines} covered "
+                        f"({line_pct:.2f}%) - {missed_lines} missed"
+                    )
+                if branch_below:
+                    print(
+                        f"  - Branches:   {covered_branches}/{total_branches} covered "
+                        f"({branch_pct:.2f}%) - {missed_branches} missed"
+                    )
+            elif line_pct < 100.0 or branch_pct < 100.0:
+                warning_count += 1
+                pkg_cls = f"{pkg_name}.{cls_name}"
+                print(f"{pkg_cls:<60} [WARN]")
                 if total_lines > 0 and line_pct < 100.0:
                     print(
                         f"  - Lines:      {covered_lines}/{total_lines} covered "
@@ -268,13 +304,23 @@ def analyze_coverage(service_name, xml_path):
                     )
 
     print("=" * 60)
-    if not_fully_covered_count == 0:
-        print(f"SUCCESS: All {all_classes_count} classes have 100% code coverage in {service_name}!")
+    if below_threshold_count == 0:
+        if warning_count > 0:
+            print(
+                f"SUCCESS: all {all_classes_count} classes in {service_name} are at "
+                f"or above {min_pct:g}% coverage ({warning_count} between "
+                f"{min_pct:g}% and 100% - warnings only)."
+            )
+        else:
+            print(
+                f"SUCCESS: all {all_classes_count} classes in {service_name} have "
+                f"100% code coverage!"
+            )
         return True
 
     print(
-        f"WARNING: {not_fully_covered_count}/{all_classes_count} classes do not have "
-        f"100% coverage in {service_name}."
+        f"FAILURE: {below_threshold_count}/{all_classes_count} classes in "
+        f"{service_name} are below {min_pct:g}% coverage."
     )
     return False
 
@@ -294,7 +340,7 @@ if __name__ == "__main__":
             continue
 
         xml_report = SERVICES[service_name]["xml_report"]
-        if not analyze_coverage(service_name, xml_report):
+        if not analyze_coverage(service_name, xml_report, cli_args.min_coverage):
             all_success = False
 
     sys.exit(0 if all_success else 1)
