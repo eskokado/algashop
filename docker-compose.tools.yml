@@ -204,6 +204,16 @@ services:
       resources:
         limits:
           memory: 1GB
+  algashop-mailpit:
+    image: axllent/mailpit:v1.29
+    ports:
+      - "1025:1025"
+      - "8025:8025"
+    restart: no
+    deploy:
+      resources:
+        limits:
+          memory: 256M
 
 volumes:
   algashop-postgres:
