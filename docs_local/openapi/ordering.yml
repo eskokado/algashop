@@ -1,8 +1,8 @@
 openapi: 3.0.4
 
-info:
+info: 
   title: AlgaShop - Ordering
-  version: "1.0"
+  version: "2.0"
 
 servers:
   - description: Development
@@ -11,11 +11,11 @@ servers:
     url: "https://api.algashop.com"
 
 paths:
-  /api/v1/customers:
+  /api/v1/customers/me:
     post:
-      description: Register new customer
+      description: Register the authenticated user as a customer
       tags:
-        - Customers
+        - My Customer
       requestBody:
         required: true
         content:
@@ -34,7 +34,7 @@ paths:
               schema:
                 type: string
               description: Resource address
-              example: "/api/v1/customers/6e148bd5-47f6-4022-b9da-07cfaa294f7a"
+              example: "/api/v1/customers/me"
         400:
           $ref: "#/components/responses/BadRequest"
         409:
@@ -44,52 +44,9 @@ paths:
         500:
           $ref: "#/components/responses/InternalError"
     get:
-      description: List customers
+      description: Get the authenticated customer's own data
       tags:
-        - Customers
-      parameters:
-        - schema:
-            type: string
-            example: "12345"
-          in: query
-          name: document
-          required: false
-        - schema:
-            type: string
-            example: "johndoe@email.com"
-          in: query
-          name: email
-          required: false
-        - $ref: "#/components/parameters/page"
-        - $ref: "#/components/parameters/size"
-        - $ref: "#/components/parameters/sort"
-        - $ref: "#/components/parameters/direction"
-      responses:
-        200:
-          description: Ok
-          content:
-            application/json:
-              schema:
-                allOf:
-                  - $ref: "#/components/schemas/Page"
-                  - type: object
-                properties:
-                  content:
-                    type: array
-                    items:
-                      $ref: "#/components/schemas/OrderSummary"
-  /api/v1/customers/{customerId}:
-    get:
-      parameters:
-        - schema:
-            type: string
-          name: customerId
-          in: path
-          required: true
-          example: "6e148bd5-47f6-4022-b9da-07cfaa294f7a"
-      description: Get one customer by id
-      tags:
-        - Customers
+        - My Customer
       responses:
         200:
           description: Ok
@@ -100,16 +57,9 @@ paths:
         404:
           $ref: "#/components/responses/NotFound"
     put:
-      parameters:
-        - schema:
-            type: string
-          name: customerId
-          in: path
-          required: true
-          example: "6e148bd5-47f6-4022-b9da-07cfaa294f7a"
-      description: Edit customer
+      description: Update the authenticated customer's own data
       tags:
-        - Customers
+        - My Customer
       requestBody:
         required: true
         content:
@@ -127,34 +77,16 @@ paths:
           $ref: "#/components/responses/BadRequest"
         404:
           $ref: "#/components/responses/NotFound"
-        409:
-          $ref: "#/components/responses/Conflict"
         422:
           $ref: "#/components/responses/UnprocessableEntity"
         500:
           $ref: "#/components/responses/InternalError"
-    delete:
-      parameters:
-        - schema:
-            type: string
-          name: customerId
-          in: path
-          required: true
-          example: "6e148bd5-47f6-4022-b9da-07cfaa294f7a"
-      description: Delete customer
-      tags:
-        - Customers
-      responses:
-        204:
-          description: No content
-        404:
-          $ref: "#/components/responses/NotFound"
 
-  /api/v1/orders:
+  /api/v1/customers/me/orders:
     post:
       tags:
-        - Orders
-      description: Create an Order
+        - My Orders
+      description: Place an order as the authenticated customer
       requestBody:
         required: true
         content:
@@ -176,7 +108,7 @@ paths:
               schema:
                 type: string
               description: Resource address
-              example: "/api/v1/orders/01226N0693HDE"
+              example: "/api/v1/customers/me/orders/01226N0693HDE"
         400:
           $ref: "#/components/responses/BadRequest"
         409:
@@ -186,7 +118,255 @@ paths:
         500:
           $ref: "#/components/responses/InternalError"
     get:
-      description: List orders
+      description: List orders placed by the authenticated customer
+      tags:
+        - My Orders
+      parameters:
+        - schema:
+            $ref: "#/components/schemas/OrderStatus"
+          in: query
+          name: status
+          required: false
+        - schema:
+            type: string
+            format: date
+            example: "2024-04-25"
+          in: query
+          name: placedAtFrom
+          required: false
+        - schema:
+            type: string
+            format: date
+            example: "2024-04-01"
+          in: query
+          name: placedAtTo
+          required: false
+        - schema:
+            type: number
+            example: 1211.98
+          in: query
+          name: totalAmountFrom
+          required: false
+        - schema:
+            type: number
+            example: 2341.98
+          in: query
+          name: totalAmountTo
+          required: false
+        - $ref: "#/components/parameters/page"
+        - $ref: "#/components/parameters/size"
+        - $ref: "#/components/parameters/sort"
+        - $ref: "#/components/parameters/direction"
+      responses:
+        200:
+          description: Ok
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/Page"
+                  - type: object
+                    properties:
+                      content:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/OrderSummary"
+
+  /api/v1/customers/me/orders/{orderId}:
+    get:
+      tags:
+        - My Orders
+      description: Detail of one order belonging to the authenticated customer
+      parameters:
+        - schema:
+            type: string
+          required: true
+          name: orderId
+          in: path
+          example: "01226N0693HDG"
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Order"
+        404:
+          $ref: "#/components/responses/NotFound"
+
+  /api/v1/customers/me/shopping-cart:
+    get:
+      tags:
+        - My Shopping Cart
+      description: Get the authenticated customer's shopping cart
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ShoppingCart"
+        404:
+          $ref: "#/components/responses/NotFound"
+    post:
+      tags:
+        - My Shopping Cart
+      description: Create a Shopping Cart for the authenticated customer (if not exists)
+      responses:
+        201:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ShoppingCart"
+        404:
+          $ref: "#/components/responses/NotFound"
+
+  /api/v1/customers/me/shopping-cart/items:
+    get:
+      tags:
+        - My Shopping Cart
+      description: List items in the authenticated customer's shopping cart
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ShoppingCartItemList"
+        404:
+          $ref: "#/components/responses/NotFound"
+    post:
+      tags:
+        - My Shopping Cart
+      description: Add or update an item in the authenticated customer's shopping cart
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ShoppingCartItemInput"
+      responses:
+        204:
+          description: OK
+        400:
+          $ref: "#/components/responses/BadRequest"
+        404:
+          $ref: "#/components/responses/NotFound"
+        500:
+          $ref: "#/components/responses/InternalError"
+    delete:
+      tags:
+        - My Shopping Cart
+      description: Empty the authenticated customer's shopping cart
+      responses:
+        204:
+          description: OK
+        404:
+          $ref: "#/components/responses/NotFound"
+
+  /api/v1/customers/me/shopping-cart/items/{itemId}:
+    delete:
+      tags:
+        - My Shopping Cart
+      description: Remove an item from the authenticated customer's shopping cart
+      parameters:
+        - schema:
+            type: string
+          name: itemId
+          in: path
+          required: true
+          example: "28fcd9fb-4ce7-44d6-9583-14d8b3dc5aff"
+      responses:
+        204:
+          description: OK
+        404:
+          $ref: "#/components/responses/NotFound"
+
+  /api/v1/customers:
+    get:
+      description: List customers (administrative)
+      tags:
+        - Customers
+      parameters:
+        - schema:
+            type: string
+            example: "John Doe"
+          in: query
+          name: firstName
+          required: false
+        - schema:
+            type: string
+            example: "johndoe@email.com"
+          in: query
+          name: email
+          required: false
+        - $ref: "#/components/parameters/page"
+        - $ref: "#/components/parameters/size"
+        - $ref: "#/components/parameters/sort"
+        - $ref: "#/components/parameters/direction"
+      responses:
+        200:
+          description: Ok
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/Page"
+                  - type: object
+                    properties:
+                      content:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/CustomerSummary"
+
+  /api/v1/customers/{customerId}:
+    get:
+      description: Get one customer by id (administrative)
+      tags:
+        - Customers
+      parameters:
+        - schema:
+            type: string
+          name: customerId
+          in: path
+          required: true
+          example: "6e148bd5-47f6-4022-b9da-07cfaa294f7a"
+      responses:
+        200:
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Customer"
+        404:
+          $ref: "#/components/responses/NotFound"
+
+  /api/v1/customers/{customerId}/shopping-cart:
+    get:
+      description: Read a customer's shopping cart (administrative, read-only)
+      tags:
+        - Customers
+      parameters:
+        - schema:
+            type: string
+          name: customerId
+          in: path
+          required: true
+          example: "6e148bd5-47f6-4022-b9da-07cfaa294f7a"
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ShoppingCart"
+        404:
+          $ref: "#/components/responses/NotFound"
+
+  /api/v1/orders:
+    get:
+      description: List orders (administrative)
       tags:
         - Orders
       parameters:
@@ -246,16 +426,17 @@ paths:
                 allOf:
                   - $ref: "#/components/schemas/Page"
                   - type: object
-                properties:
-                  content:
-                    type: array
-                    items:
-                      $ref: "#/components/schemas/OrderSummary"
+                    properties:
+                      content:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/OrderSummary"
+
   /api/v1/orders/{orderId}:
     get:
       tags:
         - Orders
-      description: Order detail
+      description: Order detail (administrative)
       parameters:
         - schema:
             type: string
@@ -273,149 +454,6 @@ paths:
         404:
           $ref: "#/components/responses/NotFound"
 
-  /api/v1/shopping-carts:
-    post:
-      tags:
-        - Shopping Cart
-      description: Create shopping cart
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/ShoppingCartInput"
-      responses:
-        201:
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ShoppingCart"
-        400:
-          $ref: "#/components/responses/BadRequest"
-        500:
-          $ref: "#/components/responses/InternalError"
-  /api/v1/shopping-carts/{shoppingCartId}:
-    get:
-      parameters:
-        - schema:
-            type: string
-          name: shoppingCartId
-          in: path
-          required: true
-          example: "277297bf-e586-4389-9f21-b3ce0c3f6580"
-      tags:
-        - Shopping Cart
-      description: Find shopping cart
-      responses:
-        200:
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ShoppingCart"
-        404:
-          $ref: "#/components/responses/NotFound"
-    delete:
-      parameters:
-        - schema:
-            type: string
-          name: shoppingCartId
-          in: path
-          required: true
-          example: "277297bf-e586-4389-9f21-b3ce0c3f6580"
-      tags:
-        - Shopping Cart
-      description: Delete shopping cart
-      responses:
-        204:
-          description: OK
-        404:
-          $ref: "#/components/responses/NotFound"
-  /api/v1/shopping-carts/{shoppingCartId}/items:
-    post:
-      parameters:
-        - schema:
-            type: string
-          name: shoppingCartId
-          in: path
-          required: true
-          example: "277297bf-e586-4389-9f21-b3ce0c3f6580"
-      tags:
-        - Shopping Cart
-      description: Add or update cart item
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/ShoppingCartItemInput"
-      responses:
-        204:
-          description: OK
-        404:
-          $ref: "#/components/responses/NotFound"
-        400:
-          $ref: "#/components/responses/BadRequest"
-        500:
-          $ref: "#/components/responses/InternalError"
-    get:
-      parameters:
-        - schema:
-            type: string
-          name: shoppingCartId
-          in: path
-          required: true
-          example: "277297bf-e586-4389-9f21-b3ce0c3f6580"
-      tags:
-        - Shopping Cart
-      description: List shopping cart items
-      responses:
-        200:
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ShoppingCartItemList"
-        404:
-          $ref: "#/components/responses/NotFound"
-    delete:
-      parameters:
-        - schema:
-            type: string
-          name: shoppingCartId
-          in: path
-          required: true
-          example: "277297bf-e586-4389-9f21-b3ce0c3f6580"
-      tags:
-        - Shopping Cart
-      description: Empty shopping cart
-      responses:
-        204:
-          description: OK
-        404:
-          $ref: "#/components/responses/NotFound"
-  /api/v1/shopping-carts/{shoppingCartId}/items/{itemId}:
-    delete:
-      tags:
-        - Shopping Cart
-      description: Remove cart item
-      parameters:
-        - schema:
-            type: string
-          name: shoppingCartId
-          in: path
-          required: true
-          example: "277297bf-e586-4389-9f21-b3ce0c3f6580"
-        - schema:
-            type: string
-          name: itemId
-          in: path
-          required: true
-          example: "28fcd9fb-4ce7-44d6-9583-14d8b3dc5aff"
-      responses:
-        204:
-          description: OK
   /api/v1/shipping-cost-previews:
     post:
       summary: Preview shipping cost
@@ -569,7 +607,6 @@ components:
       required:
         - street
         - number
-        - complement
         - neighborhood
         - city
         - state
@@ -616,7 +653,13 @@ components:
         - firstName
         - lastName
         - email
+        - document
         - phone
+        - birthDate
+        - loyaltyPoints
+        - registeredAt
+        - archivedAt
+        - promotionNotificationsAllowed
         - archived
       properties:
         id:
@@ -631,9 +674,30 @@ components:
         email:
           type: string
           example: "johndoe@email.com"
+        document:
+          type: string
+          example: "12345"
         phone:
           type: string
           example: "1191234564"
+        birthDate:
+          type: string
+          format: date
+          example: "1991-07-05"
+        loyaltyPoints:
+          type: number
+          example: 10
+        registeredAt:
+          type: string
+          format: date-time
+          example: "2024-04-04T00:12:45Z"
+        archivedAt:
+          type: string
+          format: date-time
+          example: "2024-04-04T00:12:45Z"
+        promotionNotificationsAllowed:
+          type: boolean
+          example: false
         archived:
           type: boolean
           example: false
@@ -762,18 +826,14 @@ components:
           type: integer
           example: 150
     OrderWithProductInput:
+      description: Used by Customer via POST /api/v1/customers/me/orders. The customer is derived from the authentication token.
       required:
-        - customerId
         - paymentMethod
         - productId
         - quantity
         - shipping
         - billing
       properties:
-        customerId:
-          type: string
-          example: "6e148bd5-47f6-4022-b9da-07cfaa294f7a"
-          nullable: false
         productId:
           type: string
           example: "28fcd9fb-4ce7-44d6-9583-14d8b3dc5aff"
@@ -796,16 +856,12 @@ components:
         billing:
           $ref: "#/components/schemas/Billing"
     OrderWithShoppingCartInput:
+      description: Used by Customer via POST /api/v1/customers/me/orders. The customer's own shopping cart is implicit (one cart per customer).
       required:
-        - shoppingCartId
         - paymentMethod
         - shipping
         - billing
       properties:
-        shoppingCartId:
-          type: string
-          example: "28fcd9fb-4ce7-44d6-9583-14d8b3dc5aff"
-          nullable: false
         paymentMethod:
           type: string
           example: "GATEWAY_BALANCE"
@@ -1157,13 +1213,6 @@ components:
         productId:
           type: string
           example: "6a6ca34c-e65c-496e-adaf-f872e1784003"
-    ShoppingCartInput:
-      required:
-        - customerId
-      properties:
-        customerId:
-          type: string
-          example: "6a6ca34c-e65c-496e-adaf-f872e1784003"
     ShippingCostPreviewInput:
       type: object
       required:
@@ -1173,7 +1222,6 @@ components:
           type: string
           description: Destination ZIP code
           example: "12345"
-
     ShippingCostPreviewOutput:
       type: object
       required:
