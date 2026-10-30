@@ -1,8 +1,8 @@
-openapi: 3.0.0
+openapi: 3.1.0
 
 info:
   title: AlgaShop - Users API
-  version: "1.0"
+  version: "2.0"
 
 servers:
   - description: Development
@@ -22,6 +22,29 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/User"
+    put:
+      tags:
+        - My User
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MyUserUpdateInput"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+    delete:
+      tags:
+        - My User
+      description: Disables and anonymize the authenticated user. 
+        Only for customer type users.
+      responses:
+        204:
+          description: OK
   /api/v1/users/me/password-change:
     post:
       tags:
@@ -30,6 +53,7 @@ paths:
       responses:
         "200":
           description: OK
+
   /api/v1/users:
     get:
       tags:
@@ -186,14 +210,14 @@ components:
       schema:
         type: string
         example: "name"
-      name: sortByProperty
+      name: sort
       description: Order by property
       in: query
     direction:
       schema:
         type: string
         example: "desc"
-      name: sortDirection
+      name: direction
       description: Direction
       in: query
   schemas:
@@ -280,6 +304,13 @@ components:
           example: true
         type:
           type: string
+    MyUserUpdateInput:
+      required:
+        - name
+      properties:
+        name:
+          type: string
+          example: "Victoria Garcia"
     User:
       required:
         - id
@@ -302,4 +333,4 @@ components:
           example: true
         type:
           type: string
-          example: "ADMIN"
+          example: 'MANAGER'

@@ -2,7 +2,7 @@ openapi: 3.0.4
 
 info:
   title: AlgaShop - Billing API
-  version: "1.0"
+  version: "2.0"
 
 servers:
   - description: Development
@@ -43,6 +43,7 @@ paths:
         "500":
           $ref: "#/components/responses/InternalError"
     get:
+      description: Get the invoice for an order (administrative)
       tags:
         - Order Invoice
       parameters:
@@ -62,17 +63,33 @@ paths:
         "404":
           $ref: "#/components/responses/NotFound"
 
-  /api/v1/customers/{customerId}/credit-cards:
+  /api/v1/customers/me/orders/{orderId}/invoice:
     get:
+      description: Get the invoice of an order belonging to the authenticated customer
       tags:
-        - Credit Cards
+        - My Invoice
       parameters:
         - schema:
             type: string
-          name: customerId
+          name: orderId
           in: path
           required: true
-          example: "28fcd9fb-4ce7-44d6-9583-14d8b3dc5aff"
+          example: "01226N0640J7Q"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Invoice"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  /api/v1/customers/me/credit-cards:
+    get:
+      description: List the authenticated customer's credit cards
+      tags:
+        - My Credit Cards
       responses:
         "200":
           description: OK
@@ -85,15 +102,9 @@ paths:
         "404":
           $ref: "#/components/responses/NotFound"
     post:
+      description: Add a credit card for the authenticated customer
       tags:
-        - Credit Cards
-      parameters:
-        - schema:
-            type: string
-          name: customerId
-          in: path
-          required: true
-          example: "28fcd9fb-4ce7-44d6-9583-14d8b3dc5aff"
+        - My Credit Cards
       requestBody:
         required: true
         content:
@@ -111,17 +122,13 @@ paths:
           $ref: "#/components/responses/BadRequest"
         "404":
           $ref: "#/components/responses/NotFound"
-  /api/v1/customers/{customerId}/credit-cards/{creditCardId}:
+
+  /api/v1/customers/me/credit-cards/{creditCardId}:
     get:
+      description: Get one of the authenticated customer's credit cards
       tags:
-        - Credit Cards
+        - My Credit Cards
       parameters:
-        - schema:
-            type: string
-          name: customerId
-          in: path
-          required: true
-          example: "28fcd9fb-4ce7-44d6-9583-14d8b3dc5aff"
         - schema:
             type: string
           name: creditCardId
@@ -138,15 +145,10 @@ paths:
         "404":
           $ref: "#/components/responses/NotFound"
     delete:
+      description: Remove one of the authenticated customer's credit cards
       tags:
-        - Credit Cards
+        - My Credit Cards
       parameters:
-        - schema:
-            type: string
-          name: customerId
-          in: path
-          required: true
-          example: "28fcd9fb-4ce7-44d6-9583-14d8b3dc5aff"
         - schema:
             type: string
           name: creditCardId
@@ -265,7 +267,7 @@ components:
         customerId:
           type: string
           format: uuid
-          example: "28fcd9fb-4ce7-44d6-9583-14d8b3dc5aff"
+          example: "6e148bd5-47f6-4022-b9da-07cfaa294f7a"
         issuedAt:
           type: string
           format: date-time
@@ -404,7 +406,7 @@ components:
         customerId:
           type: string
           format: uuid
-          example: "28fcd9fb-4ce7-44d6-9583-14d8b3dc5aff"
+          example: "6e148bd5-47f6-4022-b9da-07cfaa294f7a"
         paymentSettings:
           $ref: "#/components/schemas/PaymentSettingsInput"
         payer:
