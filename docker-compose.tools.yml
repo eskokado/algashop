@@ -189,9 +189,9 @@ services:
       - 4566:4566
       - 4567-4580:4567-4580
     environment:
-      SERVICES: s3
+      SERVICES: s3,secretsmanager,ssm
       DEBUG: 1
-      LS_ACCESS_KEY_ID: LSIAQAAAAAAVNCBMPNSG
+      LS_ACCESS_KEY_ID: test
       LS_SECRET_ACCESS_KEY: test
       LS_REGION: us-east-1
     volumes:
