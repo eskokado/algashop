@@ -28,3 +28,6 @@
 [submodule "microservices/authorization-server"]
 	path = microservices/authorization-server
 	url = git@github.com:eskokado/authorization-server.git
+[submodule "microservices/service-registry"]
+	path = microservices/service-registry
+	url = git@github.com:eskokado/algashop-service-registry.git
