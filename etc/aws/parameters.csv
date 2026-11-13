@@ -22,6 +22,7 @@ name,type,value
 /config/algashop/authorization-server/clients/algashop-admin-web/redirect-uris,StringList,http://admin.algashop.local:4200,http://admin.algashop.local:4200/silent-refresh.html,https://oauth.pstmn.io/v1/callback
 /config/algashop/authorization-server/clients/algashop-admin-web/post-logout-redirect-uris,StringList,http://admin.algashop.local:4200
 /config/algashop/shared/auth-server-url,String,http://auth.algashop.local:8081
+/config/algashop/shared/service-registry-url,String,http://algashop-service-registry:8761
 /config/algashop/billing/datasource/url,String,jdbc:postgresql://algashop-postgres:5432/billing
 /config/algashop/billing/jpa/show-sql,String,true
 /config/algashop/billing/fastpay/hostname,String,http://fastpay:9995
@@ -36,7 +37,7 @@ name,type,value
 /config/algashop/ordering/redis/timeout,String,5000
 /config/algashop/ordering/integrations/shipping-provider,String,RAPIDEX
 /config/algashop/ordering/integrations/rapidex-url,String,http://wiremock:8787
-/config/algashop/ordering/integrations/product-catalog-url,String,http://algashop-product-catalog
+/config/algashop/ordering/integrations/product-catalog-url,String,http://product-catalog
 /config/algashop/product-catalog/mongodb/uri,String,mongodb://algashop-mongodb-1:27017,algashop-mongodb-2:27017,algashop-mongodb-3:27017/product_catalog?replicaSet=rs0
 /config/algashop/product-catalog/redis/host,String,127.0.0.1
 /config/algashop/product-catalog/redis/port,String,6379

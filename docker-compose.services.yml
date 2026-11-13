@@ -109,3 +109,14 @@ services:
           memory: 512M
     environment:
       SPRING_PROFILES_ACTIVE: docker
+  algashop-service-registry:
+    image: algashop/service-registry:dev
+    restart: no
+    ports:
+      - 8761:8761
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
