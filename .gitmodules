@@ -31,3 +31,7 @@
 [submodule "microservices/service-registry"]
 	path = microservices/service-registry
 	url = git@github.com:eskokado/algashop-service-registry.git
+[submodule "microservices/gateway-ecommerce"]
+	path = microservices/gateway-ecommerce
+	url = git@github.com:eskokado/gateway-ecommerce.git
+	branch = main
