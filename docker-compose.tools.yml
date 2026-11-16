@@ -199,7 +199,15 @@ services:
       - ./etc/aws:/etc/aws
       - ./etc/images:/etc/images
     healthcheck:
-      test: curl --location 'http://localhost:4566/_localstack/health'
+      test:
+        [
+          "CMD-SHELL",
+          "awslocal secretsmanager describe-secret --secret-id /secret/algashop/ordering/database >/dev/null 2>&1 && awslocal s3api head-bucket --bucket algashop-product-image >/dev/null 2>&1",
+        ]
+      interval: 10s
+      timeout: 10s
+      retries: 60
+      start_period: 10s
     deploy:
       resources:
         limits:
