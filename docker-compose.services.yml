@@ -20,11 +20,11 @@ services:
       interval: 10s
       timeout: 10s
       retries: 10
-      start_period: 90s
+      start_period: 300s
     deploy:
       resources:
         limits:
-          memory: 256M
+          memory: 512M
     environment:
       SPRING_PROFILES_ACTIVE: docker
       SERVER_TOMCAT_THREADS_MAX: 10 # 200
