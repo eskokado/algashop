@@ -42,6 +42,12 @@ SERVICES = {
         "test_tasks": ["test", "integrationTest"],
         "requires_wiremock": False,
     },
+    "gateway-ecommerce": {
+        "path": "microservices/gateway-ecommerce",
+        "xml_report": "microservices/gateway-ecommerce/build/reports/jacoco/test/jacocoTestReport.xml",
+        "test_tasks": ["test"],
+        "requires_wiremock": False,
+    },
 }
 
 
