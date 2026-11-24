@@ -48,6 +48,12 @@ SERVICES = {
         "test_tasks": ["test"],
         "requires_wiremock": False,
     },
+    "gateway-admin": {
+        "path": "microservices/gateway-admin",
+        "xml_report": "microservices/gateway-admin/build/reports/jacoco/test/jacocoTestReport.xml",
+        "test_tasks": ["test"],
+        "requires_wiremock": False,
+    },
 }
 
 
