@@ -35,3 +35,7 @@
 	path = microservices/gateway-ecommerce
 	url = git@github.com:eskokado/gateway-ecommerce.git
 	branch = main
+[submodule "microservices/gateway-admin"]
+	path = microservices/gateway-admin
+	url = git@github.com:eskokado/gateway-admin.git
+	branch = main
