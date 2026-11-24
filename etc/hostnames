@@ -10,3 +10,5 @@
 127.0.0.1 fastpay
 127.0.0.1 service-registry
 127.0.0.1 algashop-mailpit
+
+127.0.0.1 admin-api.algashop.local
