@@ -188,3 +188,14 @@ services:
           memory: 512M
     environment:
       SPRING_PROFILES_ACTIVE: docker
+  algashop-ecommerce-app:
+    image: algashop/algashop-ecommerce:dev
+    restart: no
+    ports:
+      - 9080:9080
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
